@@ -6,7 +6,7 @@ function isoDateToday(): string {
   return new Date().toISOString().slice(0, 10);
 }
 
-const COMPLETED_STATUS: string = 'completed';
+const COMPLETED_STATUS: string = 'done';
 
 export const statsService = {
   summary(): StatsSummary {
