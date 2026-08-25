@@ -70,3 +70,5 @@ This file is always in context; the docs below are NOT. Read the file when its t
 - Don't: NEVER modify `server/data/seed.json` — it is the canonical baseline every lab resets to (also enforced by a deny rule and a PreToolUse hook); change data via the API or `db.json`, then `npm run reset-db`; done means seed.json has no diff
 - Don't: access `db.json` outside `server/src/repositories/` — routes and services never import `db/store.ts`
 - Don't: never commit secrets — this repo needs no credentials; anything resembling one is a mistake
+
+@AGENTS.md

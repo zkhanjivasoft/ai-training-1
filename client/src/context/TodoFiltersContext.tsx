@@ -16,7 +16,7 @@ interface TodoFiltersContextValue {
   resetFilters: () => void;
 }
 
-const DEFAULT_FILTERS: TodoFilters = { page: 1 };
+const DEFAULT_FILTERS: TodoFilters = { page: 1, status: 'open' };
 
 const TodoFiltersContext = createContext<TodoFiltersContextValue | null>(null);
 
