@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { ActivityEntry } from '@taskboard/shared';
 import { activityApi } from '../../api/activityApi';
+import { truncate } from '../../lib/text';
 import styles from './ActivityFeed.module.css';
 
 const ACTION_LABELS: Record<ActivityEntry['action'], string> = {
@@ -43,7 +44,7 @@ export function ActivityFeed({ refreshKey }: ActivityFeedProps) {
             <span className={`${styles.action} ${styles[entry.action]}`}>
               {ACTION_LABELS[entry.action]}
             </span>
-            <span className={styles.title}>{entry.todoTitle}</span>
+            <span className={styles.title}>{truncate(entry.todoTitle, 60)}</span>
           </li>
         ))}
       </ul>
