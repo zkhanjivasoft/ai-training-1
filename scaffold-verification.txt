@@ -1,0 +1,52 @@
+SCAFFOLD VERIFICATION — Notes API
+==================================
+
+$ npm install
+added 83 packages, and audited 84 packages in 4s
+
+27 packages are looking for funding
+  run `npm fund` for details
+
+found 0 vulnerabilities
+
+$ npm run build
+
+> notes-api@0.1.0 build
+> tsc -p tsconfig.json
+
+(no output — build succeeded with zero errors)
+
+$ node dist/index.js &
+notes-api listening on port 3002
+
+$ curl -s http://localhost:3002/notes
+[]
+
+(server booted successfully and the placeholder GET /notes route responded
+with an empty array, as expected for a scaffold with no notes yet created)
+
+$ kill <server pid>
+done
+
+Project directory structure (notes-api/, excluding node_modules and dist):
+
+.
+./CLAUDE.md
+./README.md
+./package-lock.json
+./package.json
+./src
+./src/app.ts
+./src/index.ts
+./src/repositories
+./src/repositories/notes.repository.ts
+./src/routes
+./src/routes/notes.routes.ts
+./src/services
+./src/services/notes.service.ts
+./src/types.ts
+./tsconfig.json
+
+This matches the project structure documented in README.md exactly (route ->
+service -> repository -> store layering, one file per layer, plus the
+top-level config and doc files).
