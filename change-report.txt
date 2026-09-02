@@ -1,0 +1,42 @@
+CHANGE REPORT
+=============
+
+Proposed change:
+Claude found that the error message in ActivityFeed was missing the `role="alert"`
+attribute that every other error surface in the app uses. This was flagged as known
+drift in the project's own documented frontend conventions (.claude/rules/frontend.md,
+rule FE-034), which explicitly calls out this exact line as "drift to fix, not a
+pattern to copy." Adding role="alert" makes the error announced immediately by screen
+readers, consistent with the rest of the app.
+
+File modified:
+client/src/components/activity/ActivityFeed.tsx (line 35)
+
+Diff reviewed before approval:
+- {error && <p className={styles.error}>{error}</p>}
++ {error && (
++   <p className={styles.error} role="alert">
++     {error}
++   </p>
++ )}
+
+I reviewed this diff before approving it — confirmed it was a single, low-risk
+one-line addition to an existing conditional render, with a clear justification
+tied to a rule already documented in the project's own conventions file.
+
+How the change was verified:
+- Ran `npm run typecheck -w client` — passed, no errors.
+- Ran `npm test -w client` — 5 test files, 20 tests, all passed (no pre-existing
+  test covered ActivityFeed specifically, so nothing broke).
+- Ran `npx eslint client/src/components/activity/ActivityFeed.tsx` directly —
+  clean, zero errors.
+- Ran the root `npm run lint` — found 8 pre-existing errors, all in an unrelated
+  file (docs/labs/snippets/hook-skeleton.js), confirming they were not introduced
+  by this change.
+
+Session controls used:
+1. @ file reference — used "@" to reference TodoFiltersContext.tsx in a prompt so
+   Claude could read and explain that specific file's contents directly, instead
+   of me describing which file I meant in plain text.
+2. ! shell command — used "!npm test" to run the client test suite directly as a
+   shell command from within the session, rather than asking Claude to run it.

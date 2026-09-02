@@ -32,7 +32,11 @@ export function ActivityFeed({ refreshKey }: ActivityFeedProps) {
   return (
     <aside className={styles.feed}>
       <h2 className={styles.heading}>Recent activity</h2>
-      {error && <p className={styles.error}>{error}</p>}
+      {error && (
+        <p className={styles.error} role="alert">
+          {error}
+        </p>
+      )}
       <ul className={styles.items}>
         {entries.map((entry) => (
           <li key={entry.id} className={styles.item}>
