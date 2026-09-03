@@ -5,4 +5,7 @@ export const notesService = {
   list(): Note[] {
     return notesRepository.findAll();
   },
+  getById(id: string): Note | undefined {
+    return notesRepository.findById(id);
+  },
 };
