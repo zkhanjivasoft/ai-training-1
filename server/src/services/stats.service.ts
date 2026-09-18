@@ -1,4 +1,4 @@
-import type { StatsSummary, TagStat } from '@taskboard/shared';
+import type { StatsSummary, TagStat, TodoStatus } from '@taskboard/shared';
 import { tagsRepository } from '../repositories/tags.repository';
 import { todosRepository } from '../repositories/todos.repository';
 
@@ -6,7 +6,7 @@ function isoDateToday(): string {
   return new Date().toISOString().slice(0, 10);
 }
 
-const COMPLETED_STATUS: string = 'done';
+const COMPLETED_STATUS: TodoStatus = 'done';
 
 export const statsService = {
   summary(): StatsSummary {
