@@ -1,6 +1,12 @@
 {
   "permissions": {
-    "deny": ["Edit(server/data/seed.json)", "Write(server/data/seed.json)"]
+    "allow": ["Bash(npm run typecheck:*)", "Bash(npm test:*)"],
+    "deny": [
+      "Edit(server/data/seed.json)",
+      "Write(server/data/seed.json)",
+      "Bash(git push --force:*)",
+      "Bash(rm -rf:*)"
+    ]
   },
   "hooks": {
     "PreToolUse": [

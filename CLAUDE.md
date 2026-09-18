@@ -71,4 +71,20 @@ This file is always in context; the docs below are NOT. Read the file when its t
 - Don't: access `db.json` outside `server/src/repositories/` — routes and services never import `db/store.ts`
 - Don't: never commit secrets — this repo needs no credentials; anything resembling one is a mistake
 
+## Guardrails
+
+- **Never force-push to `main`** (enforced by a deny rule in `.claude/settings.json`:
+  `Bash(git push --force:*)`). Reasoning: `main` is the shared branch every exercise and CI
+  build depends on; a force-push can silently discard commits someone else already pushed,
+  with no easy recovery once it's overwritten on the remote.
+- **Never run `rm -rf`** (enforced by a deny rule in `.claude/settings.json`:
+  `Bash(rm -rf:*)`). Reasoning: it's an unrecoverable bulk delete. A narrower, reversible
+  action — `git checkout --` to discard tracked changes, `git clean -n` to preview untracked
+  files before removing them, or simply moving a file aside — achieves the same cleanup
+  without the risk of deleting something that was never meant to go.
+- **Never modify `server/data/seed.json`** (see Do/Don't above; also enforced by a deny
+  rule and a PreToolUse hook). Reasoning: it's the canonical baseline every lab resets to
+  via `npm run reset-db` — a bad edit here corrupts every exercise's starting state, not
+  just the current session's.
+
 @AGENTS.md
