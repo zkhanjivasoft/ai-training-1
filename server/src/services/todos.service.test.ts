@@ -4,8 +4,6 @@ import { NotFoundError, ValidationError } from '../lib/errors';
 import { activityService } from './activity.service';
 import { makeTestDb } from '../testing/helpers';
 
-// NOTE: covers the CRUD happy paths. Filtering, search, and pagination in
-// todosService.list() do not have tests yet.
 describe('todosService', () => {
   let db: ReturnType<typeof makeTestDb>;
 
@@ -79,5 +77,55 @@ describe('todosService', () => {
     expect(() => todosService.getById('todo_a')).toThrow(NotFoundError);
     const feed = activityService.list({ todoId: 'todo_a', limit: 10 });
     expect(feed[0]?.action).toBe('deleted');
+  });
+
+  describe('list', () => {
+    const baseQuery = { sort: 'createdAt' as const, page: 1, pageSize: 20 };
+
+    it('returns all todos sorted by createdAt descending when no filters are given', () => {
+      const { todos } = todosService.list(baseQuery);
+      expect(todos.map((t) => t.id)).toEqual(['todo_c', 'todo_b', 'todo_a']);
+    });
+
+    it('filters by status', () => {
+      const { todos } = todosService.list({ ...baseQuery, status: 'done' });
+      expect(todos.map((t) => t.id)).toEqual(['todo_c']);
+    });
+
+    it('filters by priority', () => {
+      const { todos } = todosService.list({ ...baseQuery, priority: 'high' });
+      expect(todos.map((t) => t.id)).toEqual(['todo_b']);
+    });
+
+    it('filters by listId', () => {
+      const { todos } = todosService.list({ ...baseQuery, listId: 'list_b' });
+      expect(todos.map((t) => t.id)).toEqual(['todo_c']);
+    });
+
+    it('filters by tagId', () => {
+      const { todos } = todosService.list({ ...baseQuery, tagId: 'tag_b' });
+      expect(todos.map((t) => t.id)).toEqual(['todo_b']);
+    });
+
+    it('filters by free-text search over the title', () => {
+      const { todos } = todosService.list({ ...baseQuery, q: 'Completed' });
+      expect(todos.map((t) => t.id)).toEqual(['todo_c']);
+    });
+
+    it('filters by free-text search over notes', () => {
+      const { todos } = todosService.list({ ...baseQuery, q: 'Has notes' });
+      expect(todos.map((t) => t.id)).toEqual(['todo_b']);
+    });
+
+    it('combines multiple filters', () => {
+      const { todos } = todosService.list({ ...baseQuery, status: 'open', listId: 'list_a' });
+      expect(todos.map((t) => t.id)).toEqual(['todo_b', 'todo_a']);
+    });
+
+    it('paginates results and reports meta', () => {
+      const { todos, meta } = todosService.list({ ...baseQuery, pageSize: 2 });
+      expect(todos.map((t) => t.id)).toEqual(['todo_c', 'todo_b']);
+      expect(meta).toEqual({ total: 2, page: 1, pageSize: 2 });
+    });
   });
 });
