@@ -41,16 +41,13 @@ export const todosService = {
     todos: Todo[];
     meta: PageMeta;
   } {
-    let todos = todosRepository.findAll();
-
-    if (query.status) todos = todos.filter((t) => t.status === query.status);
-    if (query.priority) todos = todos.filter((t) => t.priority === query.priority);
-    if (query.listId) todos = todos.filter((t) => t.listId === query.listId);
-    if (query.tagId) todos = todos.filter((t) => t.tagIds.includes(query.tagId!));
-    if (query.q) {
-      const q = query.q;
-      todos = todos.filter((t) => t.title.includes(q) || (t.notes ?? '').includes(q));
-    }
+    let todos = todosRepository
+      .findAll()
+      .filter((t) => !query.status || t.status === query.status)
+      .filter((t) => !query.priority || t.priority === query.priority)
+      .filter((t) => !query.listId || t.listId === query.listId)
+      .filter((t) => !query.tagId || t.tagIds.includes(query.tagId!))
+      .filter((t) => !query.q || t.title.includes(query.q!) || (t.notes ?? '').includes(query.q!));
 
     todos = todos.toSorted((a, b) => b.createdAt.localeCompare(a.createdAt));
 
