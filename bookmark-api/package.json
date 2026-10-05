@@ -1,0 +1,29 @@
+{
+  "name": "bookmark-api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "A small REST API for saving, tagging, and retrieving bookmarks",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/index.js",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "express": "^5.1.0"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.0",
+    "@types/node": "^22.13.0",
+    "@types/supertest": "^6.0.2",
+    "supertest": "^7.0.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.7.3",
+    "vitest": "^3.0.5"
+  }
+}
