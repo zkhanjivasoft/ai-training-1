@@ -3,8 +3,9 @@ import { notesService } from '../services/notes.service.js';
 
 export const notesRouter = Router();
 
-notesRouter.get('/', (_req, res) => {
-  res.json(notesService.list());
+notesRouter.get('/', (req, res) => {
+  const q = req.query.q as string | undefined;
+  res.json(notesService.search(q));
 });
 
 notesRouter.get('/:id', (req, res) => {
