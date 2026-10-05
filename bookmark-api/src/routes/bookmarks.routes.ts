@@ -12,3 +12,7 @@ bookmarksRouter.get('/', (req, res) => {
   const tag = typeof req.query.tag === 'string' ? req.query.tag : undefined;
   res.json(bookmarksService.list(tag));
 });
+
+bookmarksRouter.get('/:id', (req, res) => {
+  res.json(bookmarksService.getById(req.params.id));
+});

@@ -1,7 +1,7 @@
 import type { Bookmark } from '../types.js';
 import { bookmarksRepository } from '../repositories/bookmarks.repository.js';
 import { newId } from '../lib/ids.js';
-import { ValidationError } from '../lib/errors.js';
+import { ValidationError, NotFoundError } from '../lib/errors.js';
 
 interface CreateBookmarkInput {
   url: string;
@@ -65,5 +65,11 @@ export const bookmarksService = {
     const normalizedTag = tag?.trim().toLowerCase();
     if (!normalizedTag) return bookmarks;
     return bookmarks.filter((b) => b.tags.some((t) => t.toLowerCase() === normalizedTag));
+  },
+
+  getById(id: string): Bookmark {
+    const bookmark = bookmarksRepository.findById(id);
+    if (!bookmark) throw new NotFoundError('Bookmark', id);
+    return bookmark;
   },
 };

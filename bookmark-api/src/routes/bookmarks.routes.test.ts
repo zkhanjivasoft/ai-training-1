@@ -66,3 +66,24 @@ describe('GET /bookmarks', () => {
     expect(res.body).toEqual([]);
   });
 });
+
+describe('GET /bookmarks/:id', () => {
+  const app = createApp();
+
+  it('gets a bookmark by id', async () => {
+    const created = await request(app)
+      .post('/bookmarks')
+      .send({ url: 'https://example.com', title: 'Example' });
+
+    const res = await request(app).get(`/bookmarks/${created.body.id}`);
+    expect(res.status).toBe(200);
+    expect(res.body.id).toBe(created.body.id);
+    expect(res.body.url).toBe('https://example.com');
+  });
+
+  it('returns 404 for an unknown id', async () => {
+    const res = await request(app).get('/bookmarks/does-not-exist');
+    expect(res.status).toBe(404);
+    expect(res.body.error).toMatch(/not found/i);
+  });
+});
