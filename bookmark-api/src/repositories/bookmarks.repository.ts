@@ -2,6 +2,11 @@ import type { Bookmark } from '../types.js';
 
 const bookmarks: Bookmark[] = [];
 
+/** Test-only hook: clears the in-memory store between tests. */
+export function resetBookmarks(): void {
+  bookmarks.length = 0;
+}
+
 export const bookmarksRepository = {
   findAll(): Bookmark[] {
     return bookmarks;

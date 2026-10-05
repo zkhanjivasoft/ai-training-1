@@ -1,6 +1,11 @@
-import { describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 import request from 'supertest';
 import { createApp } from '../app.js';
+import { resetBookmarks } from '../repositories/bookmarks.repository.js';
+
+beforeEach(() => {
+  resetBookmarks();
+});
 
 describe('POST /bookmarks', () => {
   const app = createApp();
@@ -33,5 +38,31 @@ describe('POST /bookmarks', () => {
 
     expect(res.status).toBe(400);
     expect(res.body.error).toMatch(/title/i);
+  });
+});
+
+describe('GET /bookmarks', () => {
+  const app = createApp();
+
+  it('lists all bookmarks and filters by tag case-insensitively', async () => {
+    await request(app)
+      .post('/bookmarks')
+      .send({ url: 'https://a.com', title: 'A', tags: ['Work'] });
+    await request(app).post('/bookmarks').send({ url: 'https://b.com', title: 'B', tags: ['Home'] });
+
+    const all = await request(app).get('/bookmarks');
+    expect(all.status).toBe(200);
+    expect(all.body).toHaveLength(2);
+
+    const filtered = await request(app).get('/bookmarks?tag=work');
+    expect(filtered.status).toBe(200);
+    expect(filtered.body).toHaveLength(1);
+    expect(filtered.body[0].url).toBe('https://a.com');
+  });
+
+  it('returns an empty array for a tag that matches nothing, not an error', async () => {
+    const res = await request(app).get('/bookmarks?tag=does-not-exist');
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual([]);
   });
 });

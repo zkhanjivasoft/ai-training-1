@@ -55,4 +55,15 @@ export const bookmarksService = {
     bookmarksRepository.insert(bookmark);
     return bookmark;
   },
+
+  // Filter semantics (decided up front): a single `tag` value, matched against each
+  // bookmark's tags case-insensitively and exactly (not a substring match) — mirrors
+  // how notes-api's search() normalizes before comparing. An absent/empty tag returns
+  // every bookmark unfiltered.
+  list(tag?: string): Bookmark[] {
+    const bookmarks = bookmarksRepository.findAll();
+    const normalizedTag = tag?.trim().toLowerCase();
+    if (!normalizedTag) return bookmarks;
+    return bookmarks.filter((b) => b.tags.some((t) => t.toLowerCase() === normalizedTag));
+  },
 };
