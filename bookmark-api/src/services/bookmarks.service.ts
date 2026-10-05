@@ -10,6 +10,13 @@ interface CreateBookmarkInput {
   tags?: string[];
 }
 
+interface UpdateBookmarkInput {
+  url?: string;
+  title?: string;
+  description?: string;
+  tags?: string[];
+}
+
 function isValidUrl(value: string): boolean {
   try {
     new URL(value);
@@ -71,5 +78,37 @@ export const bookmarksService = {
     const bookmark = bookmarksRepository.findById(id);
     if (!bookmark) throw new NotFoundError('Bookmark', id);
     return bookmark;
+  },
+
+  // Partial-update semantics (decided up front): a key omitted from the request body
+  // leaves that field unchanged; a key present with an explicit value replaces it
+  // (an empty string "" clears description, an empty array [] clears tags); a
+  // completely empty body is a 200 no-op, not a 400 — it's a valid (if pointless)
+  // partial update of zero fields. url/title, if provided, are re-validated with the
+  // same rules as create().
+  update(id: string, input: UpdateBookmarkInput): Bookmark {
+    this.getById(id);
+
+    if (input.url !== undefined && !isValidUrl(input.url)) {
+      throw new ValidationError('url must be a valid absolute URL');
+    }
+    if (input.title !== undefined && input.title.trim().length === 0) {
+      throw new ValidationError('title must not be empty');
+    }
+    if (input.tags !== undefined) {
+      if (!Array.isArray(input.tags) || !input.tags.every((t) => typeof t === 'string')) {
+        throw new ValidationError('tags must be an array of strings');
+      }
+    }
+
+    const changes: Partial<Bookmark> = {
+      ...(input.url !== undefined && { url: input.url }),
+      ...(input.title !== undefined && { title: input.title.trim() }),
+      ...('description' in input && { description: input.description || undefined }),
+      ...(input.tags !== undefined && { tags: input.tags }),
+      updatedAt: new Date().toISOString(),
+    };
+
+    return bookmarksRepository.update(id, changes)!;
   },
 };

@@ -16,3 +16,7 @@ bookmarksRouter.get('/', (req, res) => {
 bookmarksRouter.get('/:id', (req, res) => {
   res.json(bookmarksService.getById(req.params.id));
 });
+
+bookmarksRouter.patch('/:id', (req, res) => {
+  res.json(bookmarksService.update(req.params.id, req.body));
+});

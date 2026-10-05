@@ -87,3 +87,65 @@ describe('GET /bookmarks/:id', () => {
     expect(res.body.error).toMatch(/not found/i);
   });
 });
+
+describe('PATCH /bookmarks/:id', () => {
+  const app = createApp();
+
+  it('applies a partial update, leaving omitted fields unchanged', async () => {
+    const created = await request(app)
+      .post('/bookmarks')
+      .send({ url: 'https://example.com', title: 'Old title', description: 'desc', tags: ['a'] });
+
+    const res = await request(app)
+      .patch(`/bookmarks/${created.body.id}`)
+      .send({ title: 'New title' });
+
+    expect(res.status).toBe(200);
+    expect(res.body.title).toBe('New title');
+    expect(res.body.url).toBe('https://example.com'); // unchanged
+    expect(res.body.description).toBe('desc'); // unchanged
+    expect(res.body.tags).toEqual(['a']); // unchanged
+  });
+
+  it('clears description and tags with explicit empty values', async () => {
+    const created = await request(app)
+      .post('/bookmarks')
+      .send({ url: 'https://example.com', title: 'T', description: 'desc', tags: ['a'] });
+
+    const res = await request(app)
+      .patch(`/bookmarks/${created.body.id}`)
+      .send({ description: '', tags: [] });
+
+    expect(res.status).toBe(200);
+    expect(res.body.description).toBeUndefined();
+    expect(res.body.tags).toEqual([]);
+  });
+
+  it('treats an empty body as a 200 no-op', async () => {
+    const created = await request(app)
+      .post('/bookmarks')
+      .send({ url: 'https://example.com', title: 'T' });
+
+    const res = await request(app).patch(`/bookmarks/${created.body.id}`).send({});
+    expect(res.status).toBe(200);
+    expect(res.body.title).toBe('T');
+  });
+
+  it('rejects an update with a malformed url with 400', async () => {
+    const created = await request(app)
+      .post('/bookmarks')
+      .send({ url: 'https://example.com', title: 'T' });
+
+    const res = await request(app)
+      .patch(`/bookmarks/${created.body.id}`)
+      .send({ url: 'not-a-url' });
+
+    expect(res.status).toBe(400);
+    expect(res.body.error).toMatch(/url/i);
+  });
+
+  it('returns 404 when updating an unknown id', async () => {
+    const res = await request(app).patch('/bookmarks/does-not-exist').send({ title: 'X' });
+    expect(res.status).toBe(404);
+  });
+});
