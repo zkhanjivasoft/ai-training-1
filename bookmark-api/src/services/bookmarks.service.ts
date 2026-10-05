@@ -1,0 +1,58 @@
+import type { Bookmark } from '../types.js';
+import { bookmarksRepository } from '../repositories/bookmarks.repository.js';
+import { newId } from '../lib/ids.js';
+import { ValidationError } from '../lib/errors.js';
+
+interface CreateBookmarkInput {
+  url: string;
+  title: string;
+  description?: string;
+  tags?: string[];
+}
+
+function isValidUrl(value: string): boolean {
+  try {
+    new URL(value);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+// Validation rules for a Bookmark (decided up front, applied by both create and
+// update): url is required and must parse as a valid absolute URL; title is required
+// and must be non-empty after trimming; tags, if provided, must be an array of
+// strings. Duplicate URLs are explicitly ALLOWED (not an error) — a conscious choice,
+// not an accident: a user may legitimately want to re-save the same URL under
+// different tags.
+function assertValidCreateInput(input: CreateBookmarkInput): void {
+  if (typeof input.url !== 'string' || !isValidUrl(input.url)) {
+    throw new ValidationError('url must be a valid absolute URL');
+  }
+  if (typeof input.title !== 'string' || input.title.trim().length === 0) {
+    throw new ValidationError('title is required and must not be empty');
+  }
+  if (input.tags !== undefined) {
+    if (!Array.isArray(input.tags) || !input.tags.every((t) => typeof t === 'string')) {
+      throw new ValidationError('tags must be an array of strings');
+    }
+  }
+}
+
+export const bookmarksService = {
+  create(input: CreateBookmarkInput): Bookmark {
+    assertValidCreateInput(input);
+    const now = new Date().toISOString();
+    const bookmark: Bookmark = {
+      id: newId(),
+      url: input.url,
+      title: input.title.trim(),
+      description: input.description,
+      tags: input.tags ?? [],
+      createdAt: now,
+      updatedAt: now,
+    };
+    bookmarksRepository.insert(bookmark);
+    return bookmark;
+  },
+};
