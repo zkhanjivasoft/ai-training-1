@@ -39,6 +39,46 @@ describe('POST /bookmarks', () => {
     expect(res.status).toBe(400);
     expect(res.body.error).toMatch(/title/i);
   });
+
+  it('rejects a javascript: URL with 400', async () => {
+    const res = await request(app)
+      .post('/bookmarks')
+      .send({ url: 'javascript:alert(1)', title: 'XSS attempt' });
+
+    expect(res.status).toBe(400);
+    expect(res.body.error).toMatch(/url/i);
+  });
+
+  it('rejects a non-array tags value with 400', async () => {
+    const res = await request(app)
+      .post('/bookmarks')
+      .send({ url: 'https://example.com', title: 'T', tags: 'not-an-array' });
+
+    expect(res.status).toBe(400);
+    expect(res.body.error).toMatch(/tags/i);
+  });
+
+  it('rejects a non-string description with 400', async () => {
+    const res = await request(app)
+      .post('/bookmarks')
+      .send({ url: 'https://example.com', title: 'T', description: { nested: true } });
+
+    expect(res.status).toBe(400);
+    expect(res.body.error).toMatch(/description/i);
+  });
+
+  it('rejects a missing/non-object body with 400 instead of crashing', async () => {
+    const res = await request(app).post('/bookmarks').set('Content-Type', 'application/json');
+    expect(res.status).toBe(400);
+  });
+
+  it('rejects malformed JSON with 400 instead of crashing', async () => {
+    const res = await request(app)
+      .post('/bookmarks')
+      .set('Content-Type', 'application/json')
+      .send('{not valid json');
+    expect(res.status).toBe(400);
+  });
 });
 
 describe('GET /bookmarks', () => {
@@ -64,6 +104,12 @@ describe('GET /bookmarks', () => {
     const res = await request(app).get('/bookmarks?tag=does-not-exist');
     expect(res.status).toBe(200);
     expect(res.body).toEqual([]);
+  });
+
+  it('rejects a repeated ?tag= param with 400 instead of silently ignoring it', async () => {
+    const res = await request(app).get('/bookmarks?tag=a&tag=b');
+    expect(res.status).toBe(400);
+    expect(res.body.error).toMatch(/tag/i);
   });
 });
 
@@ -147,6 +193,40 @@ describe('PATCH /bookmarks/:id', () => {
   it('returns 404 when updating an unknown id', async () => {
     const res = await request(app).patch('/bookmarks/does-not-exist').send({ title: 'X' });
     expect(res.status).toBe(404);
+  });
+
+  it('rejects a non-string title with 400 instead of crashing', async () => {
+    const created = await request(app)
+      .post('/bookmarks')
+      .send({ url: 'https://example.com', title: 'T' });
+
+    const res = await request(app).patch(`/bookmarks/${created.body.id}`).send({ title: 5 });
+    expect(res.status).toBe(400);
+    expect(res.body.error).toMatch(/title/i);
+  });
+
+  it('rejects a url sent as a non-string (e.g. an array) with 400', async () => {
+    const created = await request(app)
+      .post('/bookmarks')
+      .send({ url: 'https://example.com', title: 'T' });
+
+    const res = await request(app)
+      .patch(`/bookmarks/${created.body.id}`)
+      .send({ url: ['https://evil.com'] });
+    expect(res.status).toBe(400);
+    expect(res.body.error).toMatch(/url/i);
+  });
+
+  it('rejects a bad tags shape with 400', async () => {
+    const created = await request(app)
+      .post('/bookmarks')
+      .send({ url: 'https://example.com', title: 'T' });
+
+    const res = await request(app)
+      .patch(`/bookmarks/${created.body.id}`)
+      .send({ tags: [1, 2] });
+    expect(res.status).toBe(400);
+    expect(res.body.error).toMatch(/tags/i);
   });
 });
 

@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { bookmarksService } from '../services/bookmarks.service.js';
+import { ValidationError } from '../lib/errors.js';
 
 export const bookmarksRouter = Router();
 
@@ -9,8 +10,12 @@ bookmarksRouter.post('/', (req, res) => {
 });
 
 bookmarksRouter.get('/', (req, res) => {
-  const tag = typeof req.query.tag === 'string' ? req.query.tag : undefined;
-  res.json(bookmarksService.list(tag));
+  // A repeated ?tag=a&tag=b parses to an array, not a string — reject it explicitly
+  // rather than silently ignoring the filter and returning everything.
+  if (req.query.tag !== undefined && typeof req.query.tag !== 'string') {
+    throw new ValidationError('tag must be a single string value');
+  }
+  res.json(bookmarksService.list(req.query.tag));
 });
 
 bookmarksRouter.get('/:id', (req, res) => {
