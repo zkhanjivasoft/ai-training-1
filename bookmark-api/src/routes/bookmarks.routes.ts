@@ -20,3 +20,8 @@ bookmarksRouter.get('/:id', (req, res) => {
 bookmarksRouter.patch('/:id', (req, res) => {
   res.json(bookmarksService.update(req.params.id, req.body));
 });
+
+bookmarksRouter.delete('/:id', (req, res) => {
+  bookmarksService.remove(req.params.id);
+  res.json({ deleted: true });
+});

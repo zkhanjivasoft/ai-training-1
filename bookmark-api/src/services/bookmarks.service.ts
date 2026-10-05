@@ -111,4 +111,9 @@ export const bookmarksService = {
 
     return bookmarksRepository.update(id, changes)!;
   },
+
+  remove(id: string): void {
+    this.getById(id);
+    bookmarksRepository.remove(id);
+  },
 };

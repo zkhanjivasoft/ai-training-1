@@ -149,3 +149,25 @@ describe('PATCH /bookmarks/:id', () => {
     expect(res.status).toBe(404);
   });
 });
+
+describe('DELETE /bookmarks/:id', () => {
+  const app = createApp();
+
+  it('deletes a bookmark and it is gone afterward', async () => {
+    const created = await request(app)
+      .post('/bookmarks')
+      .send({ url: 'https://example.com', title: 'T' });
+
+    const del = await request(app).delete(`/bookmarks/${created.body.id}`);
+    expect(del.status).toBe(200);
+    expect(del.body).toEqual({ deleted: true });
+
+    const after = await request(app).get(`/bookmarks/${created.body.id}`);
+    expect(after.status).toBe(404);
+  });
+
+  it('returns 404 when deleting an unknown id', async () => {
+    const res = await request(app).delete('/bookmarks/does-not-exist');
+    expect(res.status).toBe(404);
+  });
+});
