@@ -82,13 +82,10 @@ Run from inside `notes-api/`:
 - `npm start` — run the compiled server from `dist/index.js`
 - `npm run typecheck` — type-check without emitting (`tsc --noEmit`)
 
-## API surface (planned, not yet implemented)
+## API surface
 
 | Method | Path         | Description                              |
 | ------ | ------------ | ----------------------------------------- |
 | GET    | `/notes`     | List all notes, optionally `?q=<text>` to search title/body |
 | GET    | `/notes/:id` | Get a single note by id                   |
-| POST   | `/notes`     | Create a note from `{ title, body }`      |
-
-This scaffold does not implement these routes yet — see CLAUDE.md for the plan
-to add them as a follow-up.
+| POST   | `/notes`     | Create a note from `{ title, body }` (both required, non-empty strings) — returns 201 or a 400 with a validation message |
