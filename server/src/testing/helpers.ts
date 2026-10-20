@@ -56,8 +56,9 @@ const FIXTURE: Db = {
   activity: [
     {
       id: 'act_a',
-      todoId: 'todo_a',
-      todoTitle: 'First fixture todo',
+      entityType: 'todo',
+      entityId: 'todo_a',
+      entityTitle: 'First fixture todo',
       action: 'created',
       at: '2026-01-10T00:00:00.000Z',
     },

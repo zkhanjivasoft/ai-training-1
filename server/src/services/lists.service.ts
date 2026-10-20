@@ -4,6 +4,7 @@ import { newId } from '../lib/ids';
 import { logger } from '../lib/logger';
 import { listsRepository } from '../repositories/lists.repository';
 import { todosRepository } from '../repositories/todos.repository';
+import { activityService } from './activity.service';
 
 export const listsService = {
   list(): List[] {
@@ -19,6 +20,7 @@ export const listsService = {
   create(input: { name: string; description?: string }): List {
     const list: List = { id: newId('list'), ...input, createdAt: new Date().toISOString() };
     listsRepository.insert(list);
+    activityService.record('list', list.id, list.name, 'created');
     logger.info('lists.service', 'created list', { id: list.id });
     return list;
   },
@@ -26,15 +28,17 @@ export const listsService = {
   update(id: string, changes: { name?: string; description?: string }): List {
     this.getById(id);
     const updated = listsRepository.update(id, changes)!;
+    activityService.record('list', updated.id, updated.name, 'updated');
     logger.info('lists.service', 'updated list', { id });
     return updated;
   },
 
   remove(id: string): void {
-    this.getById(id);
+    const list = this.getById(id);
     const hasTodos = todosRepository.findAll().some((todo) => todo.listId === id);
     if (hasTodos) throw new ConflictError('List still contains todos; move or delete them first');
     listsRepository.remove(id);
+    activityService.record('list', list.id, list.name, 'deleted');
     logger.info('lists.service', 'deleted list', { id });
   },
 };

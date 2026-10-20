@@ -81,7 +81,7 @@ export const todosService = {
       updatedAt: now,
     };
     todosRepository.insert(todo);
-    activityService.record(todo, 'created');
+    activityService.record('todo', todo.id, todo.title, 'created');
     logger.info('todos.service', 'created todo', { id: todo.id });
     return todo;
   },
@@ -99,7 +99,7 @@ export const todosService = {
       updatedAt: new Date().toISOString(),
     };
     const updated = todosRepository.update(id, changes)!;
-    activityService.record(updated, 'updated');
+    activityService.record('todo', updated.id, updated.title, 'updated');
     logger.info('todos.service', 'updated todo', { id });
     return updated;
   },
@@ -113,7 +113,7 @@ export const todosService = {
       completedAt: now,
       updatedAt: now,
     })!;
-    activityService.record(updated, 'completed');
+    activityService.record('todo', updated.id, updated.title, 'completed');
     logger.info('todos.service', 'completed todo', { id });
     return updated;
   },
@@ -126,7 +126,7 @@ export const todosService = {
       completedAt: undefined,
       updatedAt: new Date().toISOString(),
     })!;
-    activityService.record(updated, 'reopened');
+    activityService.record('todo', updated.id, updated.title, 'reopened');
     logger.info('todos.service', 'reopened todo', { id });
     return updated;
   },
@@ -134,7 +134,7 @@ export const todosService = {
   remove(id: string): void {
     const todo = this.getById(id);
     todosRepository.remove(id);
-    activityService.record(todo, 'deleted');
+    activityService.record('todo', todo.id, todo.title, 'deleted');
     logger.info('todos.service', 'deleted todo', { id });
   },
 };

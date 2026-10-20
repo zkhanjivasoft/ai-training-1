@@ -32,7 +32,7 @@ describe('todosService', () => {
     });
     expect(todo.id).toMatch(/^todo_/);
     expect(todo.status).toBe('open');
-    const feed = activityService.list({ todoId: todo.id, limit: 10 });
+    const feed = activityService.list({ entityId: todo.id, limit: 10 });
     expect(feed[0]?.action).toBe('created');
   });
 
@@ -75,7 +75,7 @@ describe('todosService', () => {
   it('removes a todo and records the deletion', () => {
     todosService.remove('todo_a');
     expect(() => todosService.getById('todo_a')).toThrow(NotFoundError);
-    const feed = activityService.list({ todoId: 'todo_a', limit: 10 });
+    const feed = activityService.list({ entityId: 'todo_a', limit: 10 });
     expect(feed[0]?.action).toBe('deleted');
   });
 

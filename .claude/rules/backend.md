@@ -102,8 +102,8 @@ check:
 id: BE-010
 severity: error
 scope: server/src/services/*.service.ts
-statement: The service layer is the only layer that records activity: after each successful todo mutation call `activityService.record(entity, '<action>')` with the repository's returned entity, using the action verbs `created`/`updated`/`completed`/`reopened`/`deleted`.
-example: server/src/services/todos.service.ts:87
+statement: The service layer is the only layer that records activity, for any entity kind (not just todos): after each successful mutation call `activityService.record(entityType, entityId, entityTitle, '<action>')` with the repository's returned entity's id/title and the entity kind (`'todo'` | `'list'`), using the action verbs `created`/`updated`/`completed`/`reopened`/`deleted` (`completed`/`reopened` apply to todos only).
+example: server/src/services/lists.service.ts:22
 check:
 ```
 

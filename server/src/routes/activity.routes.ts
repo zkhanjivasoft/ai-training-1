@@ -4,10 +4,12 @@ import { parseWith } from '../lib/validate';
 import { sendData } from '../lib/respond';
 import { activityService } from '../services/activity.service';
 
-const activityQuerySchema = z.object({
-  todoId: z.string().optional(),
-  limit: z.coerce.number().int().min(1).max(100).default(20),
-});
+const activityQuerySchema = z
+  .object({
+    entityId: z.string().optional(),
+    limit: z.coerce.number().int().min(1).max(100).default(20),
+  })
+  .strict();
 
 export const activityRouter = Router();
 

@@ -35,11 +35,14 @@ export interface List {
 
 export type ActivityAction = 'created' | 'updated' | 'completed' | 'reopened' | 'deleted';
 
+export type ActivityEntityType = 'todo' | 'list';
+
 export interface ActivityEntry {
   id: string;
-  todoId: string;
-  /** Todo title at the time of the action, so the feed survives deletions. */
-  todoTitle: string;
+  entityType: ActivityEntityType;
+  entityId: string;
+  /** Entity title at the time of the action, so the feed survives deletions. */
+  entityTitle: string;
   action: ActivityAction;
   at: string;
 }

@@ -44,7 +44,7 @@ export function ActivityFeed({ refreshKey }: ActivityFeedProps) {
             <span className={`${styles.action} ${styles[entry.action]}`}>
               {ACTION_LABELS[entry.action]}
             </span>
-            <span className={styles.title}>{truncate(entry.todoTitle, 60)}</span>
+            <span className={styles.title}>{truncate(entry.entityTitle, 60)}</span>
           </li>
         ))}
       </ul>
